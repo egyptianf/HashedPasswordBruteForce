@@ -4,9 +4,11 @@
 #include<string.h>
 #include<math.h>
 #include <stdlib.h>
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 int error(){
-    printf("Usage: ./crack hash\n");
+    printf("Usage: ./crack hash threads_number\n");
     return 1;
 }
 _Bool match(char *plaintext, char *hashed_plaintext, char *hashed)
@@ -50,9 +52,19 @@ char *brute_force(int digits, int base, char* plaintext, char *salt, char *hashe
     free(ascii_chars);
     return NULL;
 }
+void Hello(void){
+    #ifdef _OPENMP
+    int my_rank = omp_get_thread_num();
+    int thread_count = omp_get_num_threads();
+    #else
+    int my_rank = 0;
+    int thread_count = 1;
+    #endif
+    printf("Hello from thread %d form %d\n", my_rank, thread_count);
+}
 int main(int argc, char** argv)
 {
-    if(argc != 2)
+    if(argc != 3)
         return error();
     char *hashed = argv[1], salt[2],  thread_count = strtol(argv[2], NULL, 10);;
     salt[0]= hashed[0]; salt[1]=hashed[1];
@@ -67,18 +79,29 @@ int main(int argc, char** argv)
     int digits, base=52;//(26+26)for capital and small english letters.
     digits = strlen(plaintext);
     char *password;
+
+
+    /*Testing Suite */
+    #pragma omp parallel num_threads(thread_count)
+    Hello();
+
+    /*End testing suite */
+
     //This will start by a gussing a password of 1 digit, then 2, then 3, etc..
-    int i;
-    for(i=1; i<=digits; i++)
-    {
-        password = brute_force(i, base, plaintext, salt, hashed, hashed_plaintext);
-        if(password != NULL)
-            break;
-    }
-    if(password == NULL){
-        puts("Sorry, nothing found!");
-        return 1;
-    }
-    puts(password);
+    // int i;
+    // for(i=1; i<=digits; i++)
+    // {
+    //     password = brute_force(i, base, plaintext, salt, hashed, hashed_plaintext);
+    //     if(password != NULL)
+    //         break;
+    // }
+
+
+
+    // if(password == NULL){
+    //     puts("Sorry, nothing found!");
+    //     return 1;
+    // }
+    // puts(password);
     return 0;
 }
