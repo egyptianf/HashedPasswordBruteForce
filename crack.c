@@ -31,11 +31,10 @@ char *brute_force(int digits, int base, char* plaintext, char *salt, char *hashe
     int i, index;
     for(i=0; i<digits; i++)
         ascii_chars[i] = 65;//A=65 in ASCII
-
     int permutations =(int) pow(base, digits);
     for(i=1; i<= permutations; i++)
     {
-        //If conditions for each digit
+        //If conditions for each digit starting from the least significant digit
         for(index= digits-1; index>=0; index--)
         {
             plaintext[index] = ascii_chars[index];
@@ -58,18 +57,24 @@ int main(int argc, char** argv)
     salt[0]= hashed[0]; salt[1]=hashed[1];
     char plaintext[5]= "AAAAA";//A:65 in ASCII and Z:90, a:97 and z:122
     char *hashed_plaintext = crypt(plaintext, salt);
-
     if(strcmp(hashed_plaintext, hashed) == 0)
     {
         puts(plaintext);
         return 0;
     }
-
     //If we're using a password of 5 digits
     int digits, base=52;//(26+26)for capital and small english letters.
     digits = strlen(plaintext)+0.0;
-    char *password = brute_force(digits, base, plaintext, salt, hashed, hashed_plaintext);
-
+    //char *password = brute_force(digits, base, plaintext, salt, hashed, hashed_plaintext);
+    char *password;
+    //This will start by a gussing a password of 1 digit, then 2, then 3, etc..
+    int i;
+    for(i=1; i<=digits; i++)
+    {
+        password = brute_force(i, base, plaintext, salt, hashed, hashed_plaintext);
+        if(password != NULL)
+            break;
+    }
     if(password == NULL){
         puts("Sorry, nothing found!");
         return 1;
