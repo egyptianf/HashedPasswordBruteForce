@@ -60,13 +60,13 @@ int main(int argc, char** argv)
 
     //Testing
     char txt[3] = "000";
+    digits = strlen(txt)+0.0;
     int i;
     int digit1=0, digit2=0, digit3=0;
-    int permutations = pow(10.0, 3);
-    int counter =0;
+    int permutations = (int)pow(10.0, digits);
     for(i=1; i<= permutations; i++)
     {
-        //If Else for each digit.
+        //If conditions for each digit except the least significant digit
         //Leaset significant bit digit
         txt[2] = digit1 + '0';
         digit1 = (digit1+1)%10;
