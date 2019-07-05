@@ -21,9 +21,9 @@ int main(int argc, char** argv)
     if(argc != 2)
         return error();
 
-    char *hashed = argv[1], *salt = "00";
-    char plaintext[5]= "AAAAA";//A:65 in ASCII and Z:90, a:97 and z:122
-    char *hashed_plaintext = crypt(plaintext, salt);
+    // char *hashed = argv[1], *salt = "00";
+    // char plaintext[5]= "AAAAA";//A:65 in ASCII and Z:90, a:97 and z:122
+    // char *hashed_plaintext = crypt(plaintext, salt);
 
     // if(strcmp(hashed_plaintext, hashed) == 0)
     // {
@@ -64,20 +64,19 @@ int main(int argc, char** argv)
     int digit1=0, digit2=0, digit3=0;
     int permutations = pow(10.0, 3);
     int counter =0;
-    for(i=1; i< permutations; i++)
+    for(i=1; i<= permutations; i++)
     {
         //If Else for each digit.
-    
         //Leaset significant bit digit
-        txt[2] = digit1;
+        txt[2] = digit1 + '0';
         digit1 = (digit1+1)%10;
 
-        txt[1] = digit2;
+        txt[1] = digit2 + '0';
         if((i%10) == 0)
             digit2 = (digit2+1)%10;
         
-        txt[0] = digit3;
-        if((i%20)==0)
+        txt[0] = digit3 + '0';
+        if((i%100)==0)
             digit3 = (digit3+1)%10;
     
         puts(txt);
