@@ -54,7 +54,8 @@ int main(int argc, char** argv)
 {
     if(argc != 2)
         return error();
-    char *hashed = argv[1], *salt = "00";
+    char *hashed = argv[1], salt[2];
+    salt[0]= hashed[0]; salt[1]=hashed[1];
     char plaintext[5]= "AAAAA";//A:65 in ASCII and Z:90, a:97 and z:122
     char *hashed_plaintext = crypt(plaintext, salt);
 
@@ -68,8 +69,11 @@ int main(int argc, char** argv)
     int digits, base=52;//(26+26)for capital and small english letters.
     digits = strlen(plaintext)+0.0;
     char *password = brute_force(digits, base, plaintext, salt, hashed, hashed_plaintext);
-    if(password == NULL)
+
+    if(password == NULL){
+        puts("Sorry, nothing found!");
         return 1;
+    }
     puts(password);
     return 0;
 }
