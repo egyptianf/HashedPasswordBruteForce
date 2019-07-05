@@ -4,6 +4,7 @@
 #include<string.h>
 #include<math.h>
 #include <stdlib.h>
+#include <omp.h>
 int error(){
     printf("Usage: ./crack hash\n");
     return 1;
@@ -53,7 +54,7 @@ int main(int argc, char** argv)
 {
     if(argc != 2)
         return error();
-    char *hashed = argv[1], salt[2];
+    char *hashed = argv[1], salt[2],  thread_count = strtol(argv[2], NULL, 10);;
     salt[0]= hashed[0]; salt[1]=hashed[1];
     char plaintext[5]= "AAAAA";//A:65 in ASCII and Z:90, a:97 and z:122
     char *hashed_plaintext = crypt(plaintext, salt);
@@ -65,7 +66,6 @@ int main(int argc, char** argv)
     //If we're using a password of 5 digits
     int digits, base=52;//(26+26)for capital and small english letters.
     digits = strlen(plaintext);
-    //char *password = brute_force(digits, base, plaintext, salt, hashed, hashed_plaintext);
     char *password;
     //This will start by a gussing a password of 1 digit, then 2, then 3, etc..
     int i;
