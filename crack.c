@@ -24,35 +24,36 @@ int get_next_char(int current_char)
     return next_char;
 }
 //Returns 1 when found
-char *brute_force(int digits, int base, char* plaintext, char *salt, char *hashed)
-{  
+char *brute_force(int digits, int base, char *salt, char *hashed)
+{
     int *ascii_chars = malloc(sizeof(int) * digits);
-    char *hashed_plaintext;
+    char *hashed_plaintext, *plaintext= (char *)malloc(sizeof(char) * digits);
     //Inititialization
     int i, index;
-    for(i=0; i<digits; i++)
+    for(i=0; i<digits; i++){
         ascii_chars[i] = 65;//A=65 in ASCII
-    
+        plaintext[i] = 65;
+    }
     int permutations =(int) pow(base, digits);
-    for(i=1; i<= permutations; i++)
+    for(i=2; i<= permutations; i++)
     {
         //If conditions for each digit starting from the least significant digit
         for(index= digits-1; index>=0; index--)
         {
-            plaintext[index] = ascii_chars[index];
             if( (i % ((int) pow(base,(digits-1-index)))) == 0)
-                ascii_chars[index] = get_next_char(ascii_chars[index]);//need to be changed
+                ascii_chars[index] = get_next_char(ascii_chars[index]);
+            plaintext[index] = ascii_chars[index];
         }
         hashed_plaintext = crypt(plaintext, salt);
+        //puts(plaintext);
         if(match(plaintext, hashed_plaintext, hashed))
         {
-            free(ascii_chars);        
+            free(ascii_chars);      
             return plaintext;
         }
-            
-        //puts(plaintext);
     }
     free(ascii_chars);
+    free(plaintext);
     return NULL;
 }
 int main(int argc, char** argv)
@@ -60,27 +61,24 @@ int main(int argc, char** argv)
     if(argc != 2)
         return error();
     char *hashed = argv[1], salt[2];
-    salt[0]= hashed[0]; salt[1]=hashed[1];
-    char *plaintext;//A:65 in ASCII and Z:90, a:97 and z:122
-    char *hashed_plaintext;//= crypt(plaintext, salt);
-
+    salt[0]= hashed[0];
+    salt[1]=hashed[1];
     //If we're using a password of 5 digits
     int max_digits=5, base=52;//(26+26)for capital and small english letters.
     char *password;
     //This will start by a gussing a password of 1 digit, then 2, then 3, etc..
-    int i;
-    for(i=1; i<=max_digits; i++)
+    int k;
+    for(k=1; k<=max_digits; k++)
     {
-        plaintext= malloc(sizeof(char) * i);
-        password = brute_force(i, base, plaintext, salt, hashed);
+        password = brute_force(k, base, salt, hashed);
         if(password != NULL)
             break;
-        free(plaintext);
     }
     if(password == NULL){
         puts("Sorry, nothing found!");
         return 1;
     }
+    printf("The password is: ");
     puts(password);
     return 0;
 }
