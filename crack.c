@@ -43,7 +43,11 @@ char *brute_force(int digits, int base, char* plaintext, char *salt, char *hashe
         }
         hashed_plaintext = crypt(plaintext, salt);
         if(match(plaintext, hashed_plaintext, hashed))
+        {
+            free(ascii_chars);        
             return plaintext;
+        }
+            
         //puts(plaintext);
     }
     free(ascii_chars);
