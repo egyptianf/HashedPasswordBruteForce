@@ -24,13 +24,15 @@ int get_next_char(int current_char)
     return next_char;
 }
 //Returns 1 when found
-char *brute_force(int digits, int base, char* plaintext, char *salt, char *hashed, char *hashed_plaintext)
+char *brute_force(int digits, int base, char* plaintext, char *salt, char *hashed)
 {  
     int *ascii_chars = malloc(sizeof(int) * digits);
+    char *hashed_plaintext;
     //Inititialization
     int i, index;
     for(i=0; i<digits; i++)
         ascii_chars[i] = 65;//A=65 in ASCII
+    
     int permutations =(int) pow(base, digits);
     for(i=1; i<= permutations; i++)
     {
@@ -59,25 +61,21 @@ int main(int argc, char** argv)
         return error();
     char *hashed = argv[1], salt[2];
     salt[0]= hashed[0]; salt[1]=hashed[1];
-    char plaintext[5]= "AAAAA";//A:65 in ASCII and Z:90, a:97 and z:122
-    char *hashed_plaintext = crypt(plaintext, salt);
-    if(strcmp(hashed_plaintext, hashed) == 0)
-    {
-        puts(plaintext);
-        return 0;
-    }
+    char *plaintext;//A:65 in ASCII and Z:90, a:97 and z:122
+    char *hashed_plaintext;//= crypt(plaintext, salt);
+
     //If we're using a password of 5 digits
-    int digits, base=52;//(26+26)for capital and small english letters.
-    digits = strlen(plaintext);
-    //char *password = brute_force(digits, base, plaintext, salt, hashed, hashed_plaintext);
+    int max_digits=5, base=52;//(26+26)for capital and small english letters.
     char *password;
     //This will start by a gussing a password of 1 digit, then 2, then 3, etc..
     int i;
-    for(i=1; i<=digits; i++)
+    for(i=1; i<=max_digits; i++)
     {
-        password = brute_force(i, base, plaintext, salt, hashed, hashed_plaintext);
+        plaintext= malloc(sizeof(char) * i);
+        password = brute_force(i, base, plaintext, salt, hashed);
         if(password != NULL)
             break;
+        free(plaintext);
     }
     if(password == NULL){
         puts("Sorry, nothing found!");
