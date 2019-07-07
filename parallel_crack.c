@@ -7,10 +7,11 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-int error(){
-    printf("Usage: ./crack hash threads_number\n");
-    return 1;
-}
+#include "ClasseAusiliara.h"
+// int error(){
+//     printf("Usage: ./crack hash threads_number\n");
+//     return 1;
+// }
 _Bool match(char *plaintext, char *hashed_plaintext, char *hashed)
 {
     if(strcmp(hashed_plaintext, hashed)==0)
@@ -26,32 +27,39 @@ int get_next_char(int current_char)
         return 65;
     return next_char;
 }
-//Returns 1 when found
-char *brute_force(int digits, int base, char* plaintext, char *salt, char *hashed, char *hashed_plaintext)
-{  
-    int *ascii_chars = malloc(sizeof(int) * digits);
-    //Inititialization
-    int i, index;
-    for(i=0; i<digits; i++)
-        ascii_chars[i] = 65;//A=65 in ASCII
-    int permutations =(int) pow(base, digits);
-    for(i=1; i<= permutations; i++)
-    {
-        //If conditions for each digit starting from the least significant digit
-        for(index= digits-1; index>=0; index--)
-        {
-            plaintext[index] = ascii_chars[index];
-            if( (i % ((int) pow(base,(digits-1-index)))) == 0)
-                ascii_chars[index] = get_next_char(ascii_chars[index]);//need to be changed
-        }
-        hashed_plaintext = crypt(plaintext, salt);
-        if(match(plaintext, hashed_plaintext, hashed))
-            return plaintext;
-        //puts(plaintext);
-    }
-    free(ascii_chars);
-    return NULL;
-}
+// //Returns 1 when found
+// char *brute_force(int digits, int base, char *salt, char *hashed)
+// {
+//     int *ascii_chars = malloc(sizeof(int) * digits);
+//     char *hashed_plaintext, *plaintext= (char *)malloc(sizeof(char) * digits);
+//     //Inititialization
+//     int i, index;
+//     for(i=0; i<digits; i++){
+//         ascii_chars[i] = 65;//A=65 in ASCII
+//         plaintext[i] = 65;
+//     }
+//     int permutations =(int) pow(base, digits);
+//     for(i=2; i<= permutations; i++)
+//     {
+//         //If conditions for each digit starting from the least significant digit
+//         for(index= digits-1; index>=0; index--)
+//         {
+//             if( (i % ((int) pow(base,(digits-1-index)))) == 0)
+//                 ascii_chars[index] = get_next_char(ascii_chars[index]);
+//             plaintext[index] = ascii_chars[index];
+//         }
+//         hashed_plaintext = crypt(plaintext, salt);
+//         //puts(plaintext);
+//         if(match(plaintext, hashed_plaintext, hashed))
+//         {
+//             free(ascii_chars);      
+//             return plaintext;
+//         }
+//     }
+//     free(ascii_chars);
+//     free(plaintext);
+//     return NULL;
+// }
 void Hello(void){
     #ifdef _OPENMP
     int my_rank = omp_get_thread_num();
