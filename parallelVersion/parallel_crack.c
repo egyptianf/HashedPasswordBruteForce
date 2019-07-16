@@ -27,6 +27,10 @@ int get_next_char(int current_char)
         return 65;
     return next_char;
 }
+// int error(){
+//     printf("Usage: ./crack hash number_of_threads\n");
+//     return 1;
+// }
 // //Returns 1 when found
 // char *brute_force(int digits, int base, char *salt, char *hashed)
 // {
@@ -84,8 +88,7 @@ int main(int argc, char** argv)
         return 0;
     }
     //If we're using a password of 5 digits
-    int digits, base=52;//(26+26)for capital and small english letters.
-    digits = strlen(plaintext);
+    int max_digits=5, base=52;//(26+26)for capital and small english letters.
     char *password;
 
 
@@ -94,15 +97,7 @@ int main(int argc, char** argv)
     Hello();
 
     /*End testing suite */
-
-    //This will start by a gussing a password of 1 digit, then 2, then 3, etc..
-    // int i;
-    // for(i=1; i<=digits; i++)
-    // {
-    //     password = brute_force(i, base, plaintext, salt, hashed, hashed_plaintext);
-    //     if(password != NULL)
-    //         break;
-    // }
+    
 
 
 
