@@ -29,28 +29,31 @@ int main(int argc, char** argv)
 
 
     int max_digits=5, base=52;//(26+26)for capital and small english letters.
-    char *password;
+    
     int k;
+    #pragma omp parallel for num_threads(max_digits)
     for(k=1; k<=max_digits; k++)
     {
+        char *password;
         password = brute_force(k, base, salt, hashed);
-        if(password != NULL)
-            break;
+        //This is not gonna work if using parallel for directive
+        // if(password != NULL)
+        //     puts(password);
     }
 
     /*Testing Suite */
-    #pragma omp parallel num_threads(thread_count)
-    Hello();
+    // #pragma omp parallel num_threads(thread_count)
+    // Hello();
     /*End testing suite */
 
 
-    
-    if(password == NULL){
-        puts("Sorry, nothing found!");
-        return 1;
-    }
-    printf("The password is: ");
-    puts(password);
+
+    // if(password == NULL){
+    //     puts("Sorry, nothing found!");
+    //     return 1;
+    // }
+    // printf("The password is: ");
+    // puts(password);
     return 0;
 }
 void Hello(void){
@@ -66,6 +69,9 @@ void Hello(void){
 // //Returns 1 when found
 char *brute_force(int digits, int base, char *salt, char *hashed)
 {
+    int my_rank = omp_get_thread_num();
+    int thread_count = omp_get_num_threads();
+    printf("Entered thread %d from %d\n", my_rank, thread_count);
     int *ascii_chars = malloc(sizeof(int) * digits);
     char *hashed_plaintext, *plaintext= (char *)malloc(sizeof(char) * digits);
     //Inititialization
@@ -74,6 +80,7 @@ char *brute_force(int digits, int base, char *salt, char *hashed)
         ascii_chars[i] = 65;//A=65 in ASCII
         plaintext[i] = 65;
     }
+    //End initialization
     int permutations =(int) pow(base, digits);
     for(i=2; i<= permutations; i++)
     {
@@ -88,12 +95,14 @@ char *brute_force(int digits, int base, char *salt, char *hashed)
         //puts(plaintext);
         if(match(plaintext, hashed_plaintext, hashed))
         {
-            free(ascii_chars);      
+            free(ascii_chars);
+            puts(plaintext);      
             return plaintext;
         }
     }
     free(ascii_chars);
     free(plaintext);
+    printf("Exit without finding thread %d from %d\n", my_rank, thread_count);
     return NULL;
 }
 _Bool match(char *plaintext, char *hashed_plaintext, char *hashed)

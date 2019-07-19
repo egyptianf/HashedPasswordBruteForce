@@ -2,12 +2,12 @@
 After downloading write in your terminal:<br><br>
 
 <h3>For the serial version:</h3><br>
-    gcc -o crack crack.c -lcrypt -lm <br>
-    ./crack hashedpassword<br><br>
+    <code>$ gcc -o crack crack.c -lcrypt -lm</code> <br>
+    <code>$ ./crack hashedpassword</code><br><br>
 
 <h3>For the parallel version:</h3><br>
     <h4>inside parallelVersion directory:</h4>
-    gcc -c *.c<br>
-    ar rcs libmystuff.a *.o<br>
-    gcc -o parallel_crack *.c libmystuff.a -lcrypt -lm -g -Wall -fopenmp <br>
-    ./parallel_crack hashedpassword threads_number<br>
+    <code>$ gcc -c *.c</code><br>
+    <code>$ ar rcs libmystuff.a *.o</code><br>
+    <code>$ gcc -o parallel_crack *.c libmystuff.a -lcrypt -lm -g -Wall -fopenmp </code><br>
+    <code>$ ./parallel_crack hashedpassword threads_number</code><br>
