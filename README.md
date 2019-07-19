@@ -5,7 +5,7 @@ After downloading write in your terminal:<br><br>
     <code>$ gcc -o crack crack.c -lcrypt -lm</code> <br>
     <code>$ ./crack hashedpassword</code><br><br>
 
-<h3>For the parallel version:</h3>
+<h3>For the parallel version: <em>(not finished yet)</em></h3>
     <h4>Inside parallelVersion directory:</h4>
     <code>$ gcc -c *.c</code><br>
     <code>$ ar rcs libmystuff.a *.o</code><br>
