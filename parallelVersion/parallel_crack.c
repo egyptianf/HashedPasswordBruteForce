@@ -7,12 +7,12 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-#include "ClasseAusiliara.h"
+#include "error.h"
 
 
 
 void Hello(void);
-char *brute_force(int, int, char *, char *);
+char *brute_force(int, int, char *, char *, int);
 _Bool match(char *, char *, char *);
 int get_next_char(int);
 
@@ -31,14 +31,16 @@ int main(int argc, char** argv)
     int max_digits=5, base=52;//(26+26)for capital and small english letters.
     
     int k;
-    #pragma omp parallel for num_threads(max_digits)
     for(k=1; k<=max_digits; k++)
     {
+        
         char *password;
-        password = brute_force(k, base, salt, hashed);
+        printf("getting into bruteforce function at k = %d\n", k);
+        password = brute_force(k, base, salt, hashed, thread_count);
+        printf("finished function brute_force.\n");
         //This is not gonna work if using parallel for directive
-        // if(password != NULL)
-        //     puts(password);
+        if(password != NULL)
+           puts(password);
     }
 
     /*Testing Suite */
@@ -56,54 +58,61 @@ int main(int argc, char** argv)
     // puts(password);
     return 0;
 }
-void Hello(void){
-    #ifdef _OPENMP
-    int my_rank = omp_get_thread_num();
-    int thread_count = omp_get_num_threads();
-    #else
-    int my_rank = 0;
-    int thread_count = 1;
-    #endif
-    printf("Hello from thread %d form %d\n", my_rank, thread_count);
-}
+
 // //Returns 1 when found
-char *brute_force(int digits, int base, char *salt, char *hashed)
+char *brute_force(int digits, int base, char *salt, char *hashed, int num_threads)
 {
-    int my_rank = omp_get_thread_num();
-    int thread_count = omp_get_num_threads();
-    printf("Entered thread %d from %d\n", my_rank, thread_count);
-    int *ascii_chars = malloc(sizeof(int) * digits);
-    char *hashed_plaintext, *plaintext= (char *)malloc(sizeof(char) * digits);
-    //Inititialization
+    omp_set_num_threads(num_threads);
+    
     int i, index;
-    for(i=0; i<digits; i++){
-        ascii_chars[i] = 65;//A=65 in ASCII
-        plaintext[i] = 65;
-    }
-    //End initialization
+
+        
+    
+    _Bool password_found=0;
     int permutations =(int) pow(base, digits);
-    for(i=2; i<= permutations; i++)
+    char *global_paliantext;
+    #pragma omp parallel private(i,index)
     {
-        //If conditions for each digit starting from the least significant digit
-        for(index= digits-1; index>=0; index--)
-        {
-            if( (i % ((int) pow(base,(digits-1-index)))) == 0)
-                ascii_chars[index] = get_next_char(ascii_chars[index]);
-            plaintext[index] = ascii_chars[index];
+        char *local_hashed_plaintext, *local_plaintext= (char *)malloc(sizeof(char) * digits);
+        int *local_ascii_chars = malloc(sizeof(int) * digits);
+        int id = omp_get_thread_num();
+        //Inititialization
+        for(i=0; i<digits; i++){
+            local_plaintext[i] = 65;
+            local_ascii_chars[i] = 65;//A=65 in ASCII
         }
-        hashed_plaintext = crypt(plaintext, salt);
-        //puts(plaintext);
-        if(match(plaintext, hashed_plaintext, hashed))
+        //End initialization
+        /*We need just to parallelize this loop!*/
+        for(i=id+2; i<= permutations; i+=num_threads)
         {
-            free(ascii_chars);
-            puts(plaintext);      
-            return plaintext;
+            //printf("thread(%d) reached i=%d\n", id, i);
+            if(password_found)
+                break;
+            //If conditions for each digit starting from the least significant digit
+            for(index= digits-1; index>=0; index--)
+            {
+                if( (i % ((int) pow(base,(digits-1-index)))) == 0)
+                    local_ascii_chars[index] = get_next_char(local_ascii_chars[index]);
+                local_plaintext[index] = local_ascii_chars[index];
+            }
+            local_hashed_plaintext = crypt(local_plaintext, salt);
+            //puts(plaintext);
+            if(match(local_plaintext, local_hashed_plaintext, hashed))
+            {
+
+                #pragma omp critical
+                {
+                    password_found = 1;     
+                    global_paliantext = local_plaintext;
+                }
+            }
+            
         }
+        free(local_ascii_chars);
+
     }
-    free(ascii_chars);
-    free(plaintext);
-    printf("Exit without finding thread %d from %d\n", my_rank, thread_count);
-    return NULL;
+
+    return global_paliantext;
 }
 _Bool match(char *plaintext, char *hashed_plaintext, char *hashed)
 {
