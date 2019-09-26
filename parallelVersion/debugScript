@@ -1,0 +1,4 @@
+#!/bin/bash
+gcc -g -O0 -fopenmp -c *.c
+ar rcs libmystuff.a *.o
+gcc -g -O0 -o parallel_crack *.c libmystuff.a -lcrypt -lm -g -Wall -fopenmp
